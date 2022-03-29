@@ -44,9 +44,17 @@ def evaluate(models, names, class_map_path):
         # print( test_audio.shape)
         waveform = tf.squeeze(test_audio, axis=-1)
         # print(waveform[:100])
-        preds = models[0]( waveform[10000:15600+10000])
+        l = waveform.shape[0]
         print( n )
-        print( [class_map_path[p] for p in preds] )
+        last_tags = set([])
+        for x in range(0,l-l%15600,15600):
+            preds = models[0]( waveform[x:x+15600])
+            new_tags = set( [p for p in preds if p in (0,148)])
+            if new_tags != last_tags:
+                if new_tags:
+                    s = int(x/16000)
+                    print( "%02d:%02d"% (s/60,s%60), new_tags )
+                last_tags = new_tags
     # display.display(display.Audio(waveform, rate=16000))
 
     # spectrogram = get_spectrogram(waveform)
