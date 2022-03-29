@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import os, csv
+import os, csv, sys
 import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
@@ -37,14 +37,16 @@ class TFLiteModel:
         return preds
 
 
-def evaluate(models, class_map_path):
-    test_file = tf.io.read_file("piano16k.wav")
-    test_audio, _ = tf.audio.decode_wav(contents=test_file)
-    # print( test_audio.shape)
-    waveform = tf.squeeze(test_audio, axis=-1)
-    # print(waveform[:100])
-    preds = models[0]( waveform[10000:15600+10000])
-    print( [class_map_path[p] for p in preds] )
+def evaluate(models, names, class_map_path):
+    for n in names:
+        test_file = tf.io.read_file(n)
+        test_audio, _ = tf.audio.decode_wav(contents=test_file)
+        # print( test_audio.shape)
+        waveform = tf.squeeze(test_audio, axis=-1)
+        # print(waveform[:100])
+        preds = models[0]( waveform[10000:15600+10000])
+        print( n )
+        print( [class_map_path[p] for p in preds] )
     # display.display(display.Audio(waveform, rate=16000))
 
     # spectrogram = get_spectrogram(waveform)
@@ -125,4 +127,4 @@ if __name__ == '__main__':
     class_map_path = load_class_map('yamnet_class_map.csv')
     # class_map_path = model.class_map_path().numpy()
     # print(class_map_path)
-    evaluate([model], class_map_path)
+    evaluate([model], sys.argv[1:], class_map_path)
